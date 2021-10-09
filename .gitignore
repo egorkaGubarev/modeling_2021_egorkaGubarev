@@ -33,3 +33,7 @@
 
 # Text files
 *.txt
+
+# Python
+*.iml
+*.xml
