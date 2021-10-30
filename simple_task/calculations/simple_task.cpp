@@ -1,13 +1,8 @@
 #include <array>
 #include <fstream>
-<<<<<<< Updated upstream
-#include <string>
-#include <vector>
-=======
 #include <iomanip>
 #include <iostream>
 #include <math.h>
->>>>>>> Stashed changes
 
 typedef unsigned char uchar;
 typedef unsigned int uint;
@@ -30,34 +25,6 @@ class IMethod
         ~IMethod() = default;
 };
 
-<<<<<<< Updated upstream
-std::vector<std::vector<float>> solve_simple_task(const float a_start, const float b_start, const float time_end, const float time_step, const uint k=1)
-{
-    std::vector<float> a, b;
-    const uint amount_iterations = time_end / time_step;
-    a.resize(amount_iterations);
-    b.resize(amount_iterations);
-    a[0] = a_start;
-    b[0] = b_start;
-    for (uint iteration = 1; iteration < amount_iterations; ++ iteration){
-        a[iteration] = a[iteration - 1] + b[iteration - 1] * time_step;
-        b[iteration] = b[iteration - 1] - a[iteration - 1] * k * time_step;
-    }
-    std::vector<std::vector<float>> solution = {a, b};
-    return solution;
-}
-
-void write_vector_to_file(const std::vector<float> vector_1, const std::string path)
-{
-    std::ofstream file;
-    file.open(path, std::ios::app);
-    for (float value: vector_1){
-        file << value << ";";
-    }
-    file << '\n';
-    file.close();
-}
-=======
 template <typename t_data>
 class SimpleEquation: public IEquation<t_data, 2>
 {
@@ -91,7 +58,6 @@ class EulerMethod: public IMethod<t_data, dimension>
         EulerMethod(): tmp_{}
         {
         }
->>>>>>> Stashed changes
 
         void make_iterration(const IEquation<t_data, dimension>& equation, const std::array<t_data, dimension>& conditions, const t_data step,
                                    std::array<t_data, dimension>& result) override
@@ -151,19 +117,6 @@ class Solver
 
 int main(const int argc, const char** const argv)
 {
-<<<<<<< Updated upstream
-    const float a_start = 6371000;
-    const float b_start = 0;
-    const float time_end = 100;
-    const float time_step = 1;
-    const std::string path = "result.txt";
-    const std::vector<std::vector<float>> solution = solve_simple_task(a_start, b_start, time_end, time_step);
-    const std::vector<float> a = solution[0];
-    const std::vector<float> b = solution[1];
-    clear_file(path);
-    write_vector_to_file(a, path);
-    write_vector_to_file(b, path);
-=======
     Solver<float, 2> my_solver;
     const SimpleEquation<float> my_equation(1);
     EulerMethod<float, 2> my_euler_method;
@@ -173,6 +126,5 @@ int main(const int argc, const char** const argv)
     const std::string path{"simple_equation_euler_method.txt"};
     const uchar points_write_amount = 100;
     my_solver.solve(my_equation, my_euler_method, conditions, time_end, step, path, points_write_amount);
->>>>>>> Stashed changes
     return 0;
 }
