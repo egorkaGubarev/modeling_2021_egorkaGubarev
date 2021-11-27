@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def get_amplitude(x_list: list):
+def get_amplitude(x_list):
     size: int = len(x_list)
     i: int = size - 2
     is_done: bool = False
@@ -30,25 +30,24 @@ def get_amplitude(x_list: list):
     return amplitude_local
 
 
-amount: int = 190
-frequency_start: float = 0.1
-frequency_step: float = 0.01
-frequency_end: float = 2
-symbol_split: str = ";"
-path_pattern: str = "C:/Programs/Git/repositories/modeling_2021_egorkaGubarev/simple_task/calculations/" \
-            "force_equation_response_heun_method_"
-
-amplitudes = np.zeros(amount)
-frequencies = np.arange(frequency_start, frequency_end, frequency_step)
-for file in range(amount):
-    path: str = path_pattern + str(file) + ".txt"
-    data = np.loadtxt(path)
-    time = data[:, 0]
-    x = data[:, 1]
-    amplitude: float = get_amplitude(x)
-    amplitudes[file] = amplitude
-plt.plot(frequencies, amplitudes)
+path_frequency: str = "C:/Programs/Git/repositories/modeling_2021_egorkaGubarev/simple_task/calculations/response/"\
+    "frequency/frequency.txt"
+path_pattern1: str = "C:/Programs/Git/repositories/modeling_2021_egorkaGubarev/simple_task/calculations/response/"\
+    "result/result_"
+frequency = np.loadtxt(path_frequency)
+amount: int = len(frequency)
+paths = np.array([path_pattern1])
+for path_pattern in paths:
+    amplitudes = np.zeros(amount)
+    for file in range(amount):
+        path: str = path_pattern + str(file) + ".txt"
+        data = np.loadtxt(path)
+        time = np.array(data[:, 0])
+        x = np.array(data[:, 1])
+        amplitude: float = get_amplitude(x)
+        amplitudes[file] = amplitude
+    plt.plot(frequency, amplitudes)
 plt.title('xm(w)')
 plt.xlabel('w, rad / s')
-plt.ylabel('xm, m')
+plt.ylabel('xm, rad')
 plt.show()
