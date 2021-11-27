@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def get_decrement(x_list: list):
+def get_decrement(x_list):
     amount_peaks: int = 0
     decrement_sum: float = 0
     x_max_last: float = -1
@@ -31,7 +31,7 @@ def get_decrement(x_list: list):
         return -1
 
 
-def get_periods_amount(v_list: list):
+def get_periods_amount(v_list):
     half_periods: int = 0
     size: int = len(v_list)
     for i in range(0, size - 1):
@@ -45,60 +45,51 @@ def get_periods_amount(v_list: list):
     return periods_local
 
 
-is_analytical_solution_available: bool = True
 symbol_split: str = ";"
-path: str = "C:/Programs/Git/repositories/modeling_2021_egorkaGubarev/simple_task/calculations/" \
-            "simple_friction_equation_heun_method.txt"
-path_analytical: str
-if is_analytical_solution_available:
-    path_analytical: str = "C:/Programs/Git/repositories/modeling_2021_egorkaGubarev/simple_task/calculations/" \
-                "simple_friction_equation_analytical.txt"
-else:
-    path_analytical: str = ''
+path: str = "C:/Programs/Git/repositories/modeling_2021_egorkaGubarev/simple_task/calculations/solve/result/result.txt"
 
 figure, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 figure.tight_layout()
 data = np.loadtxt(path)
-time = data[:, 0]
-x = data[:, 1]
-v = data[:, 2]
-energy = data[:, 3]
+time = np.array(data[:, 0])
+x = np.array(data[:, 1])
+v = np.array(data[:, 2])
+energy = np.array(data[:, 3])
+force = np.array(data[:, 4])
 periods: float = get_periods_amount(v)
 print("Periods:", periods)
 time_total: float = time[-1]
 period: float = time_total / periods
+period_round: float = round(period, 2)
+print("Period:", period_round, "s")
 frequency: float = 2 * np.pi / period
 frequency_round: float = round(frequency, 2)
 print("Frequency:", frequency_round, "Hz")
 decrement: float = get_decrement(x)
 if decrement > 0:
+    decrement_round: float = round(decrement, 2)
+    print("Decrement:", decrement_round)
     quality: float = np.pi / decrement
     quality_round: float = round(quality, 2)
     print("Quality:", quality_round)
 ax1.plot(time, x)
-ax2.plot(time, v)
-ax3.plot(x, v)
+ax1.plot(time, force)
+ax1.legend(["Pendulum", "Force, N / kg"])
+ax2.plot(x, v)
+ax3.plot(time, v)
+ax3.plot(time, force)
+ax3.legend(["Pendulum", "Force, N / kg"])
 ax4.plot(time, energy)
-if is_analytical_solution_available:
-    data_analytical = np.loadtxt(path_analytical)
-    time_analytical = data_analytical[:, 0]
-    x_analytical = data_analytical[:, 1]
-    v_analytical = data_analytical[:, 2]
-    energy_analytical = data_analytical[:, 3]
-    ax1.plot(time_analytical, x_analytical)
-    ax2.plot(time_analytical, v_analytical)
-    ax3.plot(x_analytical, v_analytical)
-    ax4.plot(time_analytical, energy_analytical)
 ax1.set_title('x(t)')
 ax1.set_xlabel('t, s')
 ax1.set_ylabel('x, rad')
-ax2.set_title('v(t)')
-ax2.set_xlabel('t, s')
+ax2.set_title('v(x)')
+ax2.set_xlabel('x, rad')
 ax2.set_ylabel('v, rad / s')
-ax3.set_title('v(x)')
-ax3.set_xlabel('x, rad')
+ax3.set_title('v(t)')
+ax3.set_xlabel('t, s')
 ax3.set_ylabel('v, rad / s')
 ax4.set_title('E(t)')
 ax4.set_xlabel('t, s')
-ax4.set_ylabel('E, J / (kg * m^2)')
+ax4.set_ylabel('E, J * s^2 / rad^2')
 plt.show()
