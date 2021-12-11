@@ -180,7 +180,7 @@ class LinearForceEquation: public ILinearEquation<t_data, 2>
 
         t_data get_force(const t_data time) const override
         {
-            const t_data force = this->force_ * std::sin(this->frequency_force_ * time);
+            const t_data force = this->force_ / 2 + 2 * this->force_ / 3.14 * (std::sin(this->frequency_force_ * time) + std::sin(this->frequency_force_ * 3 * time) / 3);
             return force;
         }
 };
@@ -242,6 +242,81 @@ class PositiveForceEquation: public ISinEquation<t_data, 2>
             }
             else{
                 return force_prediction;
+            }
+        }
+};
+
+template <typename t_data>
+class LinearSquareWaveEquation: public ILinearEquation<t_data, 2>
+{
+    public:
+        LinearSquareWaveEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data force_frequency):
+        ILinearEquation<t_data, 2>(frequency_pendulum, k_friction_linear, k_friction_cube, force, force_frequency)
+        {
+
+        }
+
+        t_data get_force(const t_data time) const override
+        {
+            const t_data force_prediction = this->force_ * std::sin(this->frequency_force_ * time);
+            if(force_prediction <= 0){
+                return 0;
+            }
+            else{
+                return this->force_;
+            }
+        }
+
+        void get_solution(const std::array<t_data, 2>& conditions, const t_data time, std::array<t_data, 2>& result)
+        {
+            const uint overtunes = 1000;
+            const t_data f = this->force_;
+            const t_data g = this->k_friction_linear_ / 2;
+            const t_data w = this->frequency_force_;
+            const t_data w0 = this->frequency_pendulum_;
+            const t_data root = std::sqrt(std::pow(g, 2) - std::pow(w0, 2));
+            const t_data d1 = -1 * g - root;
+            const t_data d2 = root - g;
+            t_data x = f / (2 * std::pow(w0, 2));
+            t_data x0 = x;
+            t_data v = 0;
+            t_data v0 = v;
+            for(uint i = 1; i < overtunes; ++ i){
+                const uchar mod = i % 2;
+                if(mod == 1){
+                    const t_data b = -4 * f * g * w / (3.14 * (std::pow(i * w, 4) + 4 * std::pow(i * g * w, 2) + std::pow(w0, 4) - 2 * std::pow(i * w0 * w, 2)));
+                    const t_data a = b * (std::pow(i * w, 2) - std::pow(w0, 2)) / (2 * g * i * w);
+                    x += a * std::sin(i * w * time) + b * std::cos(i * w * time);
+                    x0 += b;
+                    v += a * i * w * std::cos(i * w * time) - b * i * w * std::sin(i * w * time);
+                    v0 += a * i * w;
+                }
+            }
+            const t_data c1 = (conditions[1] - conditions[0] * d2 + x0 * d2 - v0) / (d1 - d2);
+            const t_data c2 = conditions[0] - c1 - x0;
+            result[0] = c1 * std::exp(d1 * time) + c2 * std::exp(d2 * time) + x;
+            result[1] = c1 * d1 * std::exp(d1 * time) + c2 * d2 * std::exp(d2 * time) + v;
+        }
+};
+
+template <typename t_data>
+class SquareWaveEquation: public ISinEquation<t_data, 2>
+{
+    public:
+        SquareWaveEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data force_frequency):
+        ISinEquation<t_data, 2>(frequency_pendulum, k_friction_linear, k_friction_cube, force, force_frequency)
+        {
+
+        }
+
+        t_data get_force(const t_data time) const override
+        {
+            const t_data force_prediction = this->force_ * std::sin(this->frequency_force_ * time);
+            if(force_prediction <= 0){
+                return 0;
+            }
+            else{
+                return this->force_;
             }
         }
 };

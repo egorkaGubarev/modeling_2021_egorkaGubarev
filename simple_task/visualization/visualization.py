@@ -47,7 +47,8 @@ def get_periods_amount(v_list):
 
 symbol_split: str = ";"
 path: str = "C:/Programs/Git/repositories/modeling_2021_egorkaGubarev/simple_task/calculations/solve/result/result.txt"
-
+path_analytic: str = "C:/Programs/Git/repositories/modeling_2021_egorkaGubarev/simple_task/calculations/analytic/" \
+                     "result/result.txt"
 figure, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 figure.tight_layout()
 data = np.loadtxt(path)
@@ -56,40 +57,52 @@ x = np.array(data[:, 1])
 v = np.array(data[:, 2])
 energy = np.array(data[:, 3])
 force = np.array(data[:, 4])
+data_analytic = np.loadtxt(path_analytic)
+time_analytic = np.array(data_analytic[:, 0])
+x_analytic = np.array(data_analytic[:, 1])
+v_analytic = np.array(data_analytic[:, 2])
+energy_analytic = np.array(data_analytic[:, 3])
 periods: float = get_periods_amount(v)
 print("Periods:", periods)
 time_total: float = time[-1]
-period: float = time_total / periods
-period_round: float = round(period, 2)
-print("Period:", period_round, "s")
-frequency: float = 2 * np.pi / period
-frequency_round: float = round(frequency, 2)
-print("Frequency:", frequency_round, "Hz")
-decrement: float = get_decrement(x)
-if decrement > 0:
-    decrement_round: float = round(decrement, 2)
-    print("Decrement:", decrement_round)
-    quality: float = np.pi / decrement
-    quality_round: float = round(quality, 2)
-    print("Quality:", quality_round)
+if periods > 0:
+    period: float = time_total / periods
+    period_round: float = round(period, 2)
+    print("Period:", period_round, "s")
+    frequency: float = 2 * np.pi / period
+    frequency_round: float = round(frequency, 2)
+    print("Frequency:", frequency_round, "Hz")
+    decrement: float = get_decrement(x)
+    if decrement > 0:
+        decrement_round: float = round(decrement, 2)
+        print("Decrement:", decrement_round)
+        quality: float = np.pi / decrement
+        quality_round: float = round(quality, 2)
+        print("Quality:", quality_round)
 ax1.plot(time, x)
+ax1.plot(time_analytic, x_analytic)
 ax1.plot(time, force)
-ax1.legend(["Pendulum", "Force, N / kg"])
+ax1.legend(["Pendulum", "Analytic", "Force, N / kg"])
 ax2.plot(x, v)
+ax2.plot(x_analytic, v_analytic)
+ax2.legend(["Pendulum", "Analytic"])
 ax3.plot(time, v)
+ax3.plot(time_analytic, v_analytic)
 ax3.plot(time, force)
-ax3.legend(["Pendulum", "Force, N / kg"])
+ax3.legend(["Pendulum", "Analytic", "Force, N / kg"])
 ax4.plot(time, energy)
+ax4.plot(time_analytic, energy_analytic)
+ax4.legend(["Pendulum", "Analytic"])
 ax1.set_title('x(t)')
 ax1.set_xlabel('t, s')
-ax1.set_ylabel('x, rad')
+ax1.set_ylabel('x, m')
 ax2.set_title('v(x)')
-ax2.set_xlabel('x, rad')
-ax2.set_ylabel('v, rad / s')
+ax2.set_xlabel('x, m')
+ax2.set_ylabel('v, m / s')
 ax3.set_title('v(t)')
 ax3.set_xlabel('t, s')
-ax3.set_ylabel('v, rad / s')
+ax3.set_ylabel('v, m / s')
 ax4.set_title('E(t)')
 ax4.set_xlabel('t, s')
-ax4.set_ylabel('E, J * s^2 / rad^2')
+ax4.set_ylabel('E, J * s^2 / m^2')
 plt.show()

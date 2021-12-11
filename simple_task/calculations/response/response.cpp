@@ -9,8 +9,8 @@ typedef float data;
 int main(const int argc, const char** const argv)
 {
     uint i = 0;
-    const data frequency_start = frequency_pendulum / 2;
-    const data frequency_end = frequency_pendulum * 2;
+    const data frequency_start = frequency_pendulum / 10;
+    const data frequency_end = frequency_pendulum;
     const data step_frequency = 0.01;
     data frecuency_force_current = frequency_start;
     const std::string path_pattern{"result/result_"};
@@ -22,7 +22,7 @@ int main(const int argc, const char** const argv)
         std::array<data, 2> conditions{coordinate, speed};
         i_str  = std::to_string(i);
         path = path_pattern + i_str + ".txt";
-        const PositiveForceEquation<data> equation(frequency_pendulum, k_friction_linear, k_friction_cube, force, frecuency_force_current);
+        const LinearForceEquation<data> equation(frequency_pendulum, k_friction_linear, k_friction_cube, force, frecuency_force_current);
         solver.solve(conditions, equation, method, time, step, path, points);
         out << frecuency_force_current << '\n';
         ++ i;
