@@ -3,22 +3,14 @@
 #include <array>
 #include <cmath>
 #include <fstream>
+
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
 template <typename t_data, uint dimension>
 class IEquation
 {
-    protected:
-        const t_data frequency_pendulum_, k_friction_linear_, k_friction_cube_, force_, frequency_force_;
-
     public:
-        IEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data frequency_force):
-        frequency_pendulum_{frequency_pendulum}, k_friction_linear_{k_friction_linear}, k_friction_cube_{k_friction_cube}, force_{force}, frequency_force_{frequency_force}
-        {
-
-        }
-
         virtual t_data get_force(const t_data time) const = 0;
 
         virtual t_data get_energy(const std::array<t_data, dimension>& conditions) const = 0;
@@ -32,12 +24,6 @@ template <typename t_data, uint dimension>
 class ILinearEquation: public IEquation<t_data, dimension>
 {
     public:
-        ILinearEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data frequency_force):
-        IEquation<t_data, dimension>(frequency_pendulum, k_friction_linear, k_friction_cube, force, frequency_force)
-        {
-
-        }
-
         virtual t_data get_force(const t_data time) const = 0;
 
         t_data get_energy(const std::array<t_data, dimension>& conditions) const
@@ -63,12 +49,6 @@ template <typename t_data, uint dimension>
 class ISinEquation: public IEquation<t_data, dimension>
 {
     public:
-        ISinEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data frequency_force):
-        IEquation<t_data, dimension>(frequency_pendulum, k_friction_linear, k_friction_cube, force, frequency_force)
-        {
-
-        }
-
         virtual t_data get_force(const t_data time) const = 0;
 
         t_data get_energy(const std::array<t_data, dimension>& conditions) const
@@ -164,16 +144,22 @@ std::ofstream& write(const IEquation<t_data, dimension>& equation, const t_data 
 {
     const t_data energy = equation.get_energy(conditions);
     const t_data force = equation.get_force(time);
-    out << time << ' ' << conditions[0] << ' ' << conditions[1] << ' ' << energy << ' ' << force << '\n';
+    out << time << ' ';
+    for(uchar i = 0; i < dimension; ++ i){
+        out << conditions[i] << ' ';
+    }
+    out << energy << ' ' << force << '\n';
     return out;
 }
 
 template <typename t_data>
 class LinearForceEquation: public ILinearEquation<t_data, 2>
 {
+    private:
+        const t_data frequency_pendulum_, k_friction_linear_, k_friction_cube_, force_, frequency_force_;
     public:
         LinearForceEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data frequency_force):
-        ILinearEquation<t_data, 2>(frequency_pendulum, k_friction_linear, k_friction_cube, force, frequency_force)
+        frequency_pendulum_{frequency_pendulum}, k_friction_linear_{k_friction_linear}, k_friction_cube_{k_friction_cube}, force_{force}, frequency_force_{frequency_force}
         {
 
         }
@@ -188,9 +174,11 @@ class LinearForceEquation: public ILinearEquation<t_data, 2>
 template <typename t_data>
 class ForceEquation: public ISinEquation<t_data, 2>
 {
+    private:
+        const t_data frequency_pendulum_, k_friction_linear_, k_friction_cube_, force_, frequency_force_;
     public:
         ForceEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data frequency_force):
-        ISinEquation<t_data, 2>(frequency_pendulum, k_friction_linear, k_friction_cube, force, frequency_force)
+        frequency_pendulum_{frequency_pendulum}, k_friction_linear_{k_friction_linear}, k_friction_cube_{k_friction_cube}, force_{force}, frequency_force_{frequency_force}
         {
 
         }
@@ -205,9 +193,11 @@ class ForceEquation: public ISinEquation<t_data, 2>
 template <typename t_data>
 class LinearPositiveForceEquation: public ILinearEquation<t_data, 2>
 {
+    private:
+        const t_data frequency_pendulum_, k_friction_linear_, k_friction_cube_, force_, frequency_force_;
     public:
-        LinearPositiveForceEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data force_frequency):
-        ILinearEquation<t_data, 2>(frequency_pendulum, k_friction_linear, k_friction_cube, force, force_frequency)
+        LinearPositiveForceEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data frequency_force):
+        frequency_pendulum_{frequency_pendulum}, k_friction_linear_{k_friction_linear}, k_friction_cube_{k_friction_cube}, force_{force}, frequency_force_{frequency_force}
         {
 
         }
@@ -227,9 +217,11 @@ class LinearPositiveForceEquation: public ILinearEquation<t_data, 2>
 template <typename t_data>
 class PositiveForceEquation: public ISinEquation<t_data, 2>
 {
+    private:
+        const t_data frequency_pendulum_, k_friction_linear_, k_friction_cube_, force_, frequency_force_;
     public:
-        PositiveForceEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data force_frequency):
-        ISinEquation<t_data, 2>(frequency_pendulum, k_friction_linear, k_friction_cube, force, force_frequency)
+        PositiveForceEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data frequency_force):
+        frequency_pendulum_{frequency_pendulum}, k_friction_linear_{k_friction_linear}, k_friction_cube_{k_friction_cube}, force_{force}, frequency_force_{frequency_force}
         {
 
         }
@@ -249,9 +241,11 @@ class PositiveForceEquation: public ISinEquation<t_data, 2>
 template <typename t_data>
 class LinearSquareWaveEquation: public ILinearEquation<t_data, 2>
 {
+    private:
+        const t_data frequency_pendulum_, k_friction_linear_, k_friction_cube_, force_, frequency_force_;
     public:
-        LinearSquareWaveEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data force_frequency):
-        ILinearEquation<t_data, 2>(frequency_pendulum, k_friction_linear, k_friction_cube, force, force_frequency)
+        LinearSquareWaveEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data frequency_force):
+        frequency_pendulum_{frequency_pendulum}, k_friction_linear_{k_friction_linear}, k_friction_cube_{k_friction_cube}, force_{force}, frequency_force_{frequency_force}
         {
 
         }
@@ -302,9 +296,11 @@ class LinearSquareWaveEquation: public ILinearEquation<t_data, 2>
 template <typename t_data>
 class SquareWaveEquation: public ISinEquation<t_data, 2>
 {
+    private:
+        const t_data frequency_pendulum_, k_friction_linear_, k_friction_cube_, force_, frequency_force_;
     public:
-        SquareWaveEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data force_frequency):
-        ISinEquation<t_data, 2>(frequency_pendulum, k_friction_linear, k_friction_cube, force, force_frequency)
+        SquareWaveEquation(const t_data frequency_pendulum, const t_data k_friction_linear, const t_data k_friction_cube, const t_data force, const t_data frequency_force):
+        frequency_pendulum_{frequency_pendulum}, k_friction_linear_{k_friction_linear}, k_friction_cube_{k_friction_cube}, force_{force}, frequency_force_{frequency_force}
         {
 
         }
@@ -318,6 +314,60 @@ class SquareWaveEquation: public ISinEquation<t_data, 2>
             else{
                 return this->force_;
             }
+        }
+};
+
+template <typename t_data>
+class DoubleEquation: public IEquation<t_data, 4>
+{
+    private:
+        const t_data g_, l1_, l2_, m1_, m2_;
+    public:
+        DoubleEquation(const t_data g, const t_data m1, const t_data m2, const t_data l1, const t_data l2): g_{g}, m1_{m1}, m2_{m2}, l1_{l1}, l2_{l2}
+        {
+
+        }
+
+        t_data get_force(const t_data time) const override
+        {
+            return 0;
+        }
+
+        t_data get_energy(const std::array<t_data, 4>& conditions) const override
+        {
+            const t_data phi1 = conditions[0];
+            const t_data phi2 = conditions[1];
+            const t_data w1 = conditions[2];
+            const t_data w2 = conditions[3];
+            const t_data height1 = l1_ * std::cos(phi1);
+            const t_data height2 = height1 + l2_ * std::cos(phi2);
+            const t_data potential1 = -1 * m1_ * g_ * height1;
+            const t_data potential2 = -1 * m2_ * g_ * height2;
+            const t_data potential = potential1 + potential2;
+            const t_data v1 = l1_ * w1;
+            const t_data kinetic1 = m1_ * std::pow(v1, 2) / 2;
+            const t_data kinetic2 = m2_ / 2 * (std::pow(l1_ * w1, 2) + std::pow(l2_ * w2, 2) + 2 * l1_ * l2_ * w1 * w2 * std::cos(phi1 - phi2));
+            const t_data kinetic = kinetic1 + kinetic2;
+            const t_data energy = potential + kinetic;
+            return energy;
+        }
+
+        void function_(const std::array<t_data, 4>& conditions, const t_data time, std::array<t_data, 4>& result) const override
+        {
+            const t_data phi1 = conditions[0];
+            const t_data phi2 = conditions[1];
+            const t_data w1 = conditions[2];
+            const t_data w2 = conditions[3];
+            result[0] = w1;
+            result[1] = w2;
+            result[3] = (std::pow(w2, 2) * m2_ * l2_ * std::sin(phi1 - phi2) * std::cos(phi1 - phi2) + m1_ * g_ * std::sin(phi1) * std::cos(phi1 - phi2) +
+                                                                                                      m2_ * g_ * std::sin(phi1) * std::cos(phi1 - phi2) +
+                        std::pow(w1, 2) * m1_ * l1_ * std::sin(phi1 - phi2) + std::pow(w1, 2) * m2_ * l1_ * std::sin(phi1 - phi2) - m1_ * g_ * std::sin(phi2) -
+                                                                                                                                      m2_ * g_ * std::sin(phi2)) /
+                        (l2_ * (m1_ + m2_ - m2_ * std::pow(std::cos(phi1 - phi2), 2)));
+            result[2] = (-1 * m2_ * l2_ * result[3] * std::cos(phi1 - phi2) - m2_ * l2_ * std::pow(w2, 2) * std::sin(phi1 - phi2) - m1_ * g_ * std::sin(phi1) -
+                                                                                                                                    m2_ * g_ * std::sin(phi1)) /
+                        (l1_ * (m1_ + m2_));
         }
 };
 
