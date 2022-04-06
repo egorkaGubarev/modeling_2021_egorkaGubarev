@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <random>
 #include <vector>
@@ -124,6 +125,22 @@ public:
         return energy_total;
     }
 
+    type get_light_energy() const
+    {
+        const std::vector<Molecule<type>>& molecules = *p_molecules_;
+        type energy_total = 0;
+        uint amount = 0;
+        for(const Molecule<type>& molecule: molecules){
+            if (molecule.mass_ == mass_1_){
+                const type energy = get_energy_of_molecule(molecule);
+                energy_total += energy;
+                ++ amount;
+            }
+        }
+        const type average = energy_total / amount;
+        return average;
+    }
+
     [[nodiscard]] uint get_collisions() const
     {
         return collisions_;
@@ -167,7 +184,7 @@ public:
         out.close();
     }
 
-    void invert_speeds()
+    [[maybe_unused]] void invert_speeds()
     {
         std::vector<Molecule<type>>& molecules = *p_molecules_;
         for(Molecule<type>& molecule: molecules){
@@ -178,21 +195,24 @@ public:
     friend std::ostream& operator<<(std::ostream& out, const Gas<type>& gas)
     {
         const type time = gas.time_;
-        out << time << ' ';
+        const type energy_total = gas.get_energy();
+        const type light_energy = gas.get_light_energy();
+        out << time << ' ' << energy_total << ' ' << light_energy << ' ';
         const std::vector<Molecule<type>>* const p_molecules = gas.p_molecules_;
         const std::vector<Molecule<type>>& molecules = *p_molecules;
         for(const Molecule<type>& molecule: molecules){
             const type mass = molecule.mass_;
             const type position = molecule.position_;
             const type speed = molecule.speed_;
-            out << mass << ' ' << position << ' ' << speed << ' ';
+            const type energy = gas.get_energy_of_molecule(molecule);
+            out << mass << ' ' << position << ' ' << speed << ' ' << energy << ' ';
         }
         out << '\n';
         return out;
     }
 
 private:
-    [[nodiscard]] type get_energy_of_molecule(const Molecule<type>& molecule) const
+    static type get_energy_of_molecule(const Molecule<type>& molecule)
     {
         const type energy = molecule.mass_ * std::pow(molecule.speed_, 2) / 2;
         return energy;
@@ -200,11 +220,12 @@ private:
 
     [[nodiscard]] type get_delta_time() const
     {
-        const type energy = get_energy();
-        std::vector<type> masses(amount_);
-        const type mass_min = std::min(mass_1_, mass_2_);
-        const type speed = std::sqrt(2 * energy / mass_min);
-        const type delta_time = radius_ / speed;
+        // const type energy = get_energy();
+        // std::vector<type> masses(amount_);
+        // const type mass_min = std::min(mass_1_, mass_2_);
+        // const type speed = std::sqrt(2 * energy / mass_min);
+        // const type delta_time = radius_ / speed;
+        const type delta_time = 0.01;
         return delta_time;
     }
 
